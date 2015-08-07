@@ -9,16 +9,21 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.parse.ParseAnalytics;
+import com.parse.ParseUser;
+
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ActionBar.TabListener {
 
+    public static final String TAG = MainActivity.class.getSimpleName();
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -38,11 +43,17 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ParseAnalytics.trackAppOpenedInBackground(getIntent());
 
-        Intent intent = new Intent(this, LoginActivity.class);//Activity working in is the context. Need intents to start activities
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //Logging in should be a new task
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK); //Delete the last task so you cant go back to MainActivity from LoginActivity
-        startActivity(intent);
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if(currentUser==null) { //Only runs login if there is no current user
+
+            navigateToLogin();
+        }
+        else{
+            Log.i(TAG, currentUser.getUsername());
+
+        }
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -79,6 +90,13 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         }
     }
 
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);//Activity working in is the context. Need intents to start activities
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //Logging in should be a new task
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK); //Delete the last task so you cant go back to MainActivity from LoginActivity
+        startActivity(intent);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,8 +113,9 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_logout) {
+            ParseUser.logOut();
+            navigateToLogin();
         }
 
         return super.onOptionsItemSelected(item);
