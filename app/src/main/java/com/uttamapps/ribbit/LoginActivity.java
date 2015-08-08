@@ -21,7 +21,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
-    @Bind(R.id.usernameField)    EditText mUsername;
+    @Bind(R.id.usernameField)    EditText mUsername; //New butterknife
     @Bind(R.id.passwordField) EditText mPassword;
 
     @Bind(R.id.loginButton)Button mLoginButton;
