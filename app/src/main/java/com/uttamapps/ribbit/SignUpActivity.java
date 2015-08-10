@@ -24,6 +24,8 @@ public class SignUpActivity extends AppCompatActivity {
     @Bind(R.id.usernameField) EditText mUsername;
     @Bind(R.id.passwordField) EditText mPassword;
     @Bind(R.id.emailField) EditText mEmail;
+    @Bind(R.id.optionalHometown) EditText mHometown;
+    @Bind(R.id.optionalNickname) EditText mNickname;
     @Bind(R.id.signUpButton)Button mSignUpButton;
     @Bind(R.id.progressBar)ProgressBar mProgressBar;
 
@@ -40,9 +42,16 @@ public class SignUpActivity extends AppCompatActivity {
                 String username = mUsername.getText().toString();
                 String password = mPassword.getText().toString();
                 String email = mEmail.getText().toString();
+               String hometown = mHometown.getText().toString().trim();
+
+
+
+                    String nickname = mNickname.getText().toString().trim();
+
                 username = username.trim();
                 password = password.trim();
                 email = email.trim();
+
 
                 if (username.isEmpty() || password.isEmpty() || email.isEmpty()){
                     UserDetailsAlertFragment userDialog = new UserDetailsAlertFragment();
@@ -55,6 +64,8 @@ public class SignUpActivity extends AppCompatActivity {
                     newUser.setUsername(username);
                     newUser.setPassword(password);
                     newUser.setEmail(email);
+                    newUser.put("nickname",nickname);
+                    newUser.put("hometown", hometown);
                     newUser.signUpInBackground(new SignUpCallback() {
                         @Override
                         public void done(ParseException e) {

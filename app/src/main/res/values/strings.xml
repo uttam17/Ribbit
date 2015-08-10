@@ -23,4 +23,17 @@
     <string name="menu_logout_label">Logout</string>
     <string name="empty_inbox_label">No New Messages</string>
     <string name="empty_friends_label">Add Friends To Begin!</string>
+    <string name="menu_edit_friends_label">Edit Friends</string>
+    <string name="title_activity_edit_friends">Edit Friends</string>
+    <string name="error_title">We\'re Sorry</string>
+    <string name="title_activity_profile">User Profile</string>
+    <string name="no_info_text">Nothing to show</string>
+    <string name="menu_camera_label">Camera</string>
+    <string-array name="camera_choices">
+                  <item>Take Photo</item>
+                    <item>Take Video</item>
+                    <item>Choose Picture</item>
+                    <item>Choose Video</item>
+    </string-array>
+
 </resources>

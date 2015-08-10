@@ -55,4 +55,22 @@
         android:visibility="invisible"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/optionalHometown"
+        android:layout_alignBottom="@+id/progressBar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:hint="Optional Hometown"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/optionalNickname"
+        android:layout_below="@+id/optionalHometown"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:hint="Optional Nickname"/>
 </RelativeLayout>
