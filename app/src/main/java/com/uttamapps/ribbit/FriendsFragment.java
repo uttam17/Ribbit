@@ -84,12 +84,21 @@ public class FriendsFragment extends ListFragment{
         super.onListItemClick(l, v, position, id);
         ParseUser user = mFriends.get(position);
 
-       String userNickname = user.get("nickname").toString();
-        String userHometown = user.get("hometown").toString();
-        Intent intent = new Intent(getActivity(), ProfileActivity.class);//Activity working in is the context. Need intents to start activities
-        intent.putExtra("userNickname", userNickname);
-        intent.putExtra("userHometown", userHometown);
-       startActivity(intent);
+        if(user.get("nickname")!=null &&  user.get("hometown")!=null){
+            String userNickname = user.get("nickname").toString();
+            String userHometown = user.get("hometown").toString();
+            Intent intent = new Intent(getActivity(), ProfileActivity.class);//Activity working in is the context. Need intents to start activities
+            intent.putExtra("userNickname", userNickname);
+            intent.putExtra("userHometown", userHometown);
+            startActivity(intent);
+        }
+        else{
+            Intent intent = new Intent(getActivity(), ProfileActivity.class);//Activity working in is the context. Need intents to start activities
+            intent.putExtra("userNickname", "None");
+            intent.putExtra("userHometown", "None");
+            startActivity(intent);
+        }
+
 
 
 

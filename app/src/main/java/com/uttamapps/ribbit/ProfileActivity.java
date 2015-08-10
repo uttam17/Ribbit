@@ -25,20 +25,14 @@ public class ProfileActivity extends AppCompatActivity {
         mSetHometown = (TextView)findViewById(R.id.setHometown);
         mSetNickname = (TextView)findViewById(R.id.setNickname);
 
-        if(getIntent().getStringExtra("userNickname")!=null && getIntent().getStringExtra("userHometown")!=null){
+
         Intent intent = getIntent();
         String mNickname = intent.getStringExtra("userNickname");
         String mHometown = intent.getStringExtra("userHometown");
         mSetHometown.setText(mHometown);
         mSetNickname.setText(mNickname);
 
-    }
-        else if (getIntent().getStringExtra("userNickname")==null){
-            mSetNickname.setText("Not Set");
-        }
-        else if (getIntent().getStringExtra("userHometown")==null){
-            mSetHometown.setText("Not Set");
-        }
+
 
 
 

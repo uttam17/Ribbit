@@ -3,7 +3,9 @@ package com.uttamapps.ribbit;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
@@ -14,9 +16,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.parse.ParseAnalytics;
 import com.parse.ParseUser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ActionBar.TabListener{
 
@@ -27,27 +38,121 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     public static final int PICK_PHOTO_REQUEST = 2;
     public static final int PICK_VIDEO_REQUEST = 3;
 
+    public static final int MEDIA_TYPE_IMAGE = 4;
+    public static final int MEDIA_TYPE_VIDEO = 5;
+
+    public static final int FILE_SIZE_LIMIT = 1024*1024*10; // 10mb
+
+    protected Uri mMediaUri; //used to identify local file resources. Path to photo
+
 
     protected DialogInterface.OnClickListener mDialogListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) { //which is what number is clicked on
-switch (which){
+
+    switch (which){
     case 0: //take picture
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takePhotoIntent, TAKE_PHOTO_REQUEST);
+        mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // reference http://developer.android.com/guide/topics/media/camera.html#saving-media
 
-
-
+        if(mMediaUri==null){
+            //display error if uri is not available
+            Toast.makeText(MainActivity.this, R.string.error_external_storage, Toast.LENGTH_LONG).show();
+        }
+        else {
+            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+            startActivityForResult(takePhotoIntent, TAKE_PHOTO_REQUEST);
+        }
         break;
     case 1: //take video
+
+        Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
+        if(mMediaUri==null){
+            //display error if uri is not available
+            Toast.makeText(MainActivity.this, R.string.error_external_storage, Toast.LENGTH_LONG).show();
+        }
+        else {
+            videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+            videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10); // 10 second limit
+            videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // http://developer.android.com/reference/android/provider/MediaStore.html#EXTRA_VIDEO_QUALITY
+            startActivityForResult(videoIntent, TAKE_VIDEO_REQUEST);
+        }
         break;
     case 2: //choose picture
+        Intent choosePhotoIntent = new Intent(Intent.ACTION_GET_CONTENT); // ACTION_GET_CONTENT is for all media so we limit it on next line
+        choosePhotoIntent.setType("image/*");
+
+        startActivityForResult(choosePhotoIntent, PICK_PHOTO_REQUEST);
+
         break;
     case 3: //choose video
+        Intent chooseVideoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseVideoIntent.setType("video/*");
+        Toast.makeText(MainActivity.this, R.string.video_file_size_warning, Toast.LENGTH_LONG).show();
+        startActivityForResult(chooseVideoIntent, PICK_VIDEO_REQUEST);
         break;
 }
         }
     };
+
+    private Uri getOutputMediaFileUri(int mediaType) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        if (isExternalStorageAvailable()) {
+            //get the uri
+
+            // 1. Get the external storage directory
+            String appName = MainActivity.this.getString(R.string.app_name); //created automatically by android studio
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), appName);
+
+            // 2. Create our subdirectory
+            if(! mediaStorageDir.exists()){ //if the directory doesn't exist
+               if(! mediaStorageDir.mkdirs()){ //if the directory fails to be created
+                   Log.e(TAG, "Failed to create directory");
+                   return null;
+               }
+            }
+
+            // 3. Create a file name
+
+
+
+            // 4. Create the file
+            File mediaFile;
+            Date now = new Date();
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(now);
+            String path = mediaStorageDir.getPath() + File.separator; // separator gives default separator of os
+            if(mediaType == MEDIA_TYPE_IMAGE){
+                mediaFile = new File(path + "IMG_" + timeStamp + ".jpg");
+            }
+            else if(mediaType == MEDIA_TYPE_VIDEO){
+                mediaFile = new File(path + "VID_" + timeStamp + ".mp4");
+            }
+            else{
+                return null;
+            }
+            Log.d(TAG, "File: " + Uri.fromFile(mediaFile));
+            // 5. Return the file's URI
+
+            return Uri.fromFile(mediaFile);
+        }
+        else {
+            return null;
+        }
+    }
+
+    private boolean isExternalStorageAvailable(){
+        String state = Environment.getExternalStorageState();
+        if(state.equals(Environment.MEDIA_MOUNTED)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -114,6 +219,66 @@ switch (which){
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //data intent is Uri code from photo or video
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode==RESULT_OK){
+            //add to gallery by broadcasting. Gallery and other apps can listen for broadcasts then take action
+
+            if(requestCode == PICK_PHOTO_REQUEST || requestCode == PICK_VIDEO_REQUEST){ //If media is selected, it passes the uri
+                if(data==null){
+                    Toast.makeText(this, R.string.general_error, Toast.LENGTH_LONG).show();
+                }
+                else{
+                    mMediaUri = data.getData(); //gets the Uri from the data intent
+                }
+
+                Log.i(TAG, "Media URI" + mMediaUri);
+
+                if(requestCode==PICK_VIDEO_REQUEST){
+                    //make sure video file is less than 10 mb
+                    int fileSize = 0;
+
+                    InputStream inputStream = null; //used to stream media file.
+                    try {
+                        inputStream = getContentResolver().openInputStream(mMediaUri);
+                        fileSize = inputStream.available(); //stores the total number of bytes in the video
+                    } catch (FileNotFoundException e) {
+                        Toast.makeText(this, R.string.error_opening_file, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    catch (IOException e){
+                        Toast.makeText(this, R.string.error_opening_file, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    finally { //Always gets executed
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            /* Intentionally blank */
+                        }
+                        if(fileSize >= FILE_SIZE_LIMIT){
+                            Toast.makeText(this, R.string.file_size_error, Toast.LENGTH_LONG).show();
+                            return; //Don't want to go any farther since file size is too large. Simply return;
+                        }
+                    }
+
+                }
+            }
+            else{ //Used to grab the uri for the created image or video
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            mediaScanIntent.setData(mMediaUri);
+            sendBroadcast(mediaScanIntent);
+        }
+        }
+        else if(resultCode != RESULT_CANCELED){
+            Toast.makeText(this, R.string.general_error, Toast.LENGTH_LONG).show();
+        }
+
     }
 
     private void navigateToLogin() {
