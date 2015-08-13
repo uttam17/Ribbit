@@ -21,7 +21,6 @@ String exceptionMessage;
                 .setTitle(R.string.signup_error_title)
                 .setMessage(exceptionMessage)
                 .setPositiveButton(context.getString(R.string.ok), null);
-        AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
     }
 }

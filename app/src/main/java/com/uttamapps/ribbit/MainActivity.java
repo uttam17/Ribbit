@@ -148,12 +148,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
 
     private boolean isExternalStorageAvailable(){
         String state = Environment.getExternalStorageState();
-        if(state.equals(Environment.MEDIA_MOUNTED)){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return state.equals(Environment.MEDIA_MOUNTED);
     }
 
     /**
@@ -323,15 +318,18 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
             case R.id.action_logout:
             ParseUser.logOut();
             navigateToLogin();
+                break;
             case R.id.action_edit_friends:
             Intent intent = new Intent(this, EditFriendsActivity.class);
             startActivity(intent);
+                break;
 
             case R.id.action_camera:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setItems(R.array.camera_choices, mDialogListener);
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                break;
         }
 
         return super.onOptionsItemSelected(item);

@@ -8,6 +8,9 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class ViewImageActivity extends AppCompatActivity {
 
     @Override
@@ -19,6 +22,13 @@ public class ViewImageActivity extends AppCompatActivity {
 
         Picasso.with(this).load(imageUri.toString()).into(imageView); //load this image with the specific uri into the imageView
 
+        Timer time = new Timer();
+        time.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 10000); // 10,000 milliseconds delay then code in run() will be called
 
     }
 

@@ -42,6 +42,7 @@ public class MessageAdapter extends ArrayAdapter<ParseObject> {
             holder = new ViewHolder();
             holder.iconImageView = (ImageView) convertView.findViewById(R.id.messageIcon); //get it for the layout from this view since we are not attached to the activity yet
             holder.nameLabel = (TextView) convertView.findViewById(R.id.senderLabel);
+            convertView.setTag(holder);
         }
         else{
             holder = (ViewHolder)convertView.getTag(); //gets ViewHolder that was already created
@@ -64,6 +65,13 @@ public class MessageAdapter extends ArrayAdapter<ParseObject> {
     private static class ViewHolder {
         ImageView iconImageView; //public by default
         TextView nameLabel;
+
+    }
+
+    public void refill(List<ParseObject> messages){
+        mMessages.clear(); //clears all messages
+        mMessages.addAll(messages); //refills with all messages
+        notifyDataSetChanged(); //notifies change
 
     }
 }

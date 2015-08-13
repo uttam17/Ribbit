@@ -22,7 +22,6 @@ public class DefaultAlertFragment extends DialogFragment{
                 .setTitle(R.string.error_title)
                 .setMessage(message)
                 .setPositiveButton(context.getString(R.string.ok), null);
-        AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
     }
 }

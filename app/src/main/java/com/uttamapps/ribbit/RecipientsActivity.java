@@ -202,7 +202,7 @@ public class RecipientsActivity extends AppCompatActivity {
     protected ArrayList<String> getRecipientsIds(){
         ArrayList<String> recipientIds = new ArrayList<String>();
 
-        for(int i=0; i<recipientsListView.getCount(); i++){  // object ids for selected recipients to the recipientdsIds arrayList
+        for(int i=0; i<recipientsListView.getCount(); i++){  // object ids for selected recipients to the recipientsIds arrayList
             if(recipientsListView.isItemChecked(i)){
                 recipientIds.add(mFriends.get(i).getObjectId());
             }

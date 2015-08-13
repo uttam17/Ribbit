@@ -16,6 +16,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,10 +56,15 @@ public class InboxFragment extends ListFragment{
                             getListView().getContext(),
                             android.R.layout.simple_list_item_1,
                             usernames);*/
-                    MessageAdapter adapter = new MessageAdapter(
-                            getListView().getContext(),
-                            mMessages);
-                    setListAdapter(adapter);
+                    if(getListView().getAdapter()==null){ //adapter is just being created
+                        MessageAdapter adapter = new MessageAdapter(
+                                getListView().getContext(),
+                                mMessages);
+                        setListAdapter(adapter);
+                    }
+                    else{ //adapter has been created. Refill the adapter!
+                        ((MessageAdapter)getListView().getAdapter()).refill(mMessages); //refill method is in MessageAdapter class
+                    }
                 }
             }
         });
@@ -89,5 +95,21 @@ public class InboxFragment extends ListFragment{
 
         }
 
+        // Delete the message as soon as it is clicked so user won't see it when they get back
+        List<String> ids = message.getList(ParseConstants.KEY_RECIPIENTS_IDS);
+        if(ids.size()==1){
+            // last recipient. So we can delete the whole file
+            message.deleteInBackground();
+        }
+        else{
+            // remove only the recipient
+            ids.remove(ParseUser.getCurrentUser().getObjectId()); // removes locally
+
+            ArrayList<String> idsToRemove = new ArrayList<String>();
+            idsToRemove.add(ParseUser.getCurrentUser().getObjectId());
+
+            message.removeAll(ParseConstants.KEY_RECIPIENTS_IDS,idsToRemove);
+            message.saveInBackground();
+        }
     }
 }
