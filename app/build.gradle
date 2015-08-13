@@ -29,4 +29,5 @@ dependencies {
     compile fileTree(include: 'Parse-*.jar', dir: 'libs')
     compile 'com.jakewharton:butterknife:7.0.1'
     compile files('libs/commons-io-2.4.jar')
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }
